@@ -1,0 +1,23 @@
+RNN on sequential MNIST (28 steps x 28 features)
+Epochs: 6
+
+LSTM: params=214282, final test acc=0.9885, final test loss=0.0379
+GRU: params=161034, final test acc=0.9887, final test loss=0.0414
+
+LSTM classification report:
+              precision    recall  f1-score   support
+
+           0     0.9969    0.9939    0.9954       980
+           1     0.9852    0.9991    0.9921      1135
+           2     0.9884    0.9932    0.9908      1032
+           3     0.9940    0.9871    0.9906      1010
+           4     0.9959    0.9847    0.9903       982
+           5     0.9909    0.9787    0.9848       892
+           6     0.9885    0.9843    0.9864       958
+           7     0.9844    0.9844    0.9844      1028
+           8     0.9827    0.9887    0.9857       974
+           9     0.9794    0.9881    0.9837      1009
+
+    accuracy                         0.9885     10000
+   macro avg     0.9886    0.9882    0.9884     10000
+weighted avg     0.9885    0.9885    0.9885     10000
