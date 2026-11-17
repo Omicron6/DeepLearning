@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep Learning Programming Assignment: CNN and RNN</title>
+<style>
+  body { font-family: Segoe UI, Arial, sans-serif; margin: 0; background: #f4f6f9; color: #222; }
+  header { background: #1f3b63; color: #fff; padding: 28px 40px; }
+  header h1 { margin: 0 0 6px; font-size: 28px; }
+  header p { margin: 0; opacity: .85; }
+  nav { background: #2c5282; padding: 10px 40px; position: sticky; top: 0; }
+  nav a { color: #fff; margin-right: 22px; text-decoration: none; font-weight: 600; }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 40px 60px; }
+  section { background: #fff; border-radius: 10px; padding: 24px 28px; margin: 22px 0;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  h2 { color: #1f3b63; margin-top: 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+  h3 { color: #2c5282; }
+  .cards { display: flex; gap: 16px; flex-wrap: wrap; }
+  .card { flex: 1; min-width: 200px; background: #ebf4ff; border-radius: 8px; padding: 16px; text-align: center; }
+  .card .num { font-size: 32px; font-weight: 700; color: #1f3b63; }
+  .card .lbl { font-size: 14px; color: #4a5568; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 14px; }
+  th, td { border: 1px solid #e2e8f0; padding: 7px 10px; text-align: left; }
+  th { background: #edf2f7; }
+  img { max-width: 100%; border: 1px solid #e2e8f0; border-radius: 6px; margin: 8px 0; }
+  pre { background: #1a202c; color: #e2e8f0; padding: 14px; border-radius: 6px; overflow-x: auto; font-size: 13px; }
+  .low { background: #fff5f5; }
+  .note { background: #fffbea; border-left: 4px solid #d69e2e; padding: 10px 14px; border-radius: 4px; }
+  .say { background: #f0fff4; border-left: 5px solid #38a169; padding: 12px 16px; border-radius: 6px;
+         margin: 12px 0 16px; font-size: 17px; line-height: 1.6; }
+  .say::before { content: "EXPLANATION"; display: block; font-size: 11px; font-weight: 700;
+                 letter-spacing: 1px; color: #2f855a; margin-bottom: 4px; }
+  .say p { margin: 6px 0; }
+  body.hide-script .say { display: none; }
+  #toggle { float: right; background: #38a169; color: #fff; border: 0; padding: 5px 12px;
+            border-radius: 4px; font-weight: 600; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Deep Learning Programming Assignment</h1>
+  <p>Implementation of a Convolutional Neural Network and Recurrent Neural Networks (LSTM, GRU) in PyTorch</p>
+</header>
+
+<nav>
+  <a href="#overview">Overview</a>
+  <a href="#cnn">CNN</a>
+  <a href="#rnn">RNN</a>
+  <a href="#compare">Comparison</a>
+  <a href="#conclusion">Conclusion</a>
+  <button id="toggle" onclick="document.body.classList.toggle('hide-script'); this.textContent = document.body.classList.contains('hide-script') ? 'Show script' : 'Hide script';">Hide script</button>
+</nav>
+
+<main>
+
+<section id="overview">
+  <h2>Overview</h2>
+  <div class="say">
+    <p>We built two deep learning models in Python using PyTorch and trained them on a GPU.</p>
+    <p>The first model is a <b>CNN</b>. It looks at a photo of a piece of clothing and says what it is, for example a shirt, a bag or a sneaker.</p>
+    <p>The second model is an <b>RNN</b>. We built two versions, an LSTM and a GRU. It looks at a handwritten number from 0 to 9 and says which number it is. It reads the image one row at a time, like reading lines of text.</p>
+    <p>The CNN got about <b>92%</b> right, and both RNNs got about <b>99%</b> right on pictures they had never seen before.</p>
+  </div>
+  <div class="cards">
+    <div class="card"><div class="num">91.77%</div><div class="lbl">CNN test accuracy<br>Fashion-MNIST</div></div>
+    <div class="card"><div class="num">98.85%</div><div class="lbl">LSTM test accuracy<br>Sequential MNIST</div></div>
+    <div class="card"><div class="num">98.87%</div><div class="lbl">GRU test accuracy<br>Sequential MNIST</div></div>
+  </div>
+  <table>
+    <tr><th>Item</th><th>Details</th></tr>
+    <tr><td>Framework</td><td>PyTorch, trained on an NVIDIA GPU (CUDA)</td></tr>
+    <tr><td>Loss function</td><td>Cross-entropy</td></tr>
+    <tr><td>Optimizer</td><td>Adam (learning rate 0.001 for the CNN, 0.002 for the RNNs), batch size 128</td></tr>
+    <tr><td>Evaluation</td><td>Accuracy, loss curves, confusion matrix, per-class precision / recall / F1</td></tr>
+    <tr><td>Code files</td><td><code>cnn_fashion_mnist.py</code>, <code>rnn_lstm_mnist.py</code></td></tr>
+  </table>
+</section>
+
+<section id="cnn">
+  <h2>Part A: CNN Image Classification (Fashion-MNIST)</h2>
+  <div class="say">
+    <p>CNN stands for Convolutional Neural Network. It is the standard model for understanding images.</p>
+    <p>We used the Fashion-MNIST dataset. It has 70,000 small black-and-white photos of clothes in 10 types. We used 60,000 photos to train the model and kept 10,000 separate photos to test it. Here are some examples of the photos.</p>
+  </div>
+  <h3>Dataset</h3>
+  <p>Fashion-MNIST has 70,000 grayscale 28×28 images of clothing in 10 classes
+     (60,000 for training, 10,000 for testing).</p>
+  <img src="outputs/cnn_samples.png" alt="Sample Fashion-MNIST images">
+
+  <h3>Architecture</h3>
+  <div class="say">
+    <p>This table shows how the model is built, step by step.</p>
+    <p>The photo goes into the first <b>convolution layer</b>. It has 32 small 3 by 3 filters that slide over the image and find simple patterns like edges and lines.</p>
+    <p><b>Batch normalization</b> keeps the numbers in a stable range so training is faster. <b>ReLU</b> keeps only the useful signals. <b>Max pooling</b> shrinks the image to half its size, from 28 by 28 to 14 by 14, and keeps the strongest features.</p>
+    <p>The second block does the same with 64 filters. These find bigger shapes, like a collar, a sleeve or a shoe sole. The image is now 7 by 7.</p>
+    <p>Then we flatten everything into one list of 3,136 numbers and pass it through two fully connected layers. <b>Dropout</b> randomly switches off 30% of the neurons during training so the model does not just memorise the photos. The last layer gives a score for each of the 10 classes, and the highest score is the answer.</p>
+    <p>In total the model has about 420,000 parameters that it learns. The code below is the forward function, which is exactly the path described above.</p>
+  </div>
+  <table>
+    <tr><th>Layer</th><th>Operation</th><th>Output shape</th></tr>
+    <tr><td>Input</td><td>Grayscale image</td><td>1 × 28 × 28</td></tr>
+    <tr><td>Conv block 1</td><td>Conv 3×3 (32 filters) → BatchNorm → ReLU → MaxPool 2×2</td><td>32 × 14 × 14</td></tr>
+    <tr><td>Conv block 2</td><td>Conv 3×3 (64 filters) → BatchNorm → ReLU → MaxPool 2×2</td><td>64 × 7 × 7</td></tr>
+    <tr><td>Flatten</td><td></td><td>3136</td></tr>
+    <tr><td>FC 1</td><td>Linear → ReLU → Dropout (0.3)</td><td>128</td></tr>
+    <tr><td>FC 2</td><td>Linear (class scores)</td><td>10</td></tr>
+  </table>
+  <p>Trainable parameters: <b>421,834</b></p>
+<pre>class CNN(nn.Module):
+    def forward(self, x):
+        x = self.pool(F.relu(self.bn1(self.conv1(x))))  # 32 x 14 x 14
+        x = self.pool(F.relu(self.bn2(self.conv2(x))))  # 64 x 7 x 7
+        x = torch.flatten(x, 1)
+        x = self.drop(F.relu(self.fc1(x)))
+        return self.fc2(x)</pre>
+
+  <h3>Training progress (8 epochs)</h3>
+  <div class="say">
+    <p>We trained the model for 8 epochs. One epoch means the model has seen all 60,000 training photos once. We used the <b>Adam</b> optimizer and <b>cross-entropy loss</b>, which measures how wrong the predictions are.</p>
+    <p>In this table you can see the loss going down and the accuracy going up every epoch. After the first epoch it was already 88% correct on the test photos, and by the end it reached <b>91.8%</b>.</p>
+    <p>In the graph, the training and test lines stay close together. Training accuracy is 93.6% and test accuracy is 91.8%. That small gap means the model is <b>not overfitting much</b>. It has really learned, not just memorised.</p>
+  </div>
+  <table>
+    <tr><th>Epoch</th><th>Train loss</th><th>Train acc</th><th>Test loss</th><th>Test acc</th></tr>
+    <tr><td>1</td><td>0.4538</td><td>83.74%</td><td>0.3236</td><td>88.04%</td></tr>
+    <tr><td>2</td><td>0.3020</td><td>89.13%</td><td>0.2715</td><td>90.08%</td></tr>
+    <tr><td>3</td><td>0.2649</td><td>90.35%</td><td>0.2695</td><td>89.89%</td></tr>
+    <tr><td>4</td><td>0.2378</td><td>91.23%</td><td>0.2558</td><td>90.87%</td></tr>
+    <tr><td>5</td><td>0.2161</td><td>91.99%</td><td>0.2425</td><td>91.23%</td></tr>
+    <tr><td>6</td><td>0.2011</td><td>92.57%</td><td>0.2275</td><td>91.75%</td></tr>
+    <tr><td>7</td><td>0.1863</td><td>93.12%</td><td>0.2337</td><td>91.48%</td></tr>
+    <tr><td>8</td><td>0.1713</td><td>93.59%</td><td>0.2283</td><td>91.77%</td></tr>
+  </table>
+  <img src="outputs/cnn_curves.png" alt="CNN loss and accuracy curves">
+
+  <h3>Per-class results (test set)</h3>
+  <div class="say">
+    <p>This table shows how well the model does on each type of clothing. <b>Precision</b> means: when the model says "shirt", how often is it really a shirt. <b>Recall</b> means: out of all the real shirts, how many did the model find. <b>F1</b> combines the two.</p>
+    <p>Trousers, bags, sandals and sneakers are almost perfect, around 97 to 99%, because their shapes are very different from everything else.</p>
+    <p>The hardest class is <b>Shirt</b>, highlighted in red. The model found only 70% of the shirts.</p>
+  </div>
+  <table>
+    <tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1-score</th></tr>
+    <tr><td>T-shirt</td><td>0.8795</td><td>0.8540</td><td>0.8666</td></tr>
+    <tr><td>Trouser</td><td>0.9959</td><td>0.9830</td><td>0.9894</td></tr>
+    <tr><td>Pullover</td><td>0.8499</td><td>0.9000</td><td>0.8742</td></tr>
+    <tr><td>Dress</td><td>0.9001</td><td>0.9190</td><td>0.9095</td></tr>
+    <tr><td>Coat</td><td>0.8339</td><td>0.9040</td><td>0.8676</td></tr>
+    <tr><td>Sandal</td><td>0.9821</td><td>0.9860</td><td>0.9840</td></tr>
+    <tr class="low"><td>Shirt</td><td>0.8111</td><td>0.7040</td><td>0.7537</td></tr>
+    <tr><td>Sneaker</td><td>0.9625</td><td>0.9760</td><td>0.9692</td></tr>
+    <tr><td>Bag</td><td>0.9812</td><td>0.9890</td><td>0.9851</td></tr>
+    <tr><td>Ankle boot</td><td>0.9776</td><td>0.9620</td><td>0.9698</td></tr>
+  </table>
+  <img src="outputs/cnn_confusion_matrix.png" alt="CNN confusion matrix">
+  <p class="note">"Shirt" is the hardest class (70.4% recall). At 28×28 resolution it is often
+     confused with T-shirt, Pullover and Coat, which have similar shapes.</p>
+  <div class="say">
+    <p>This is the <b>confusion matrix</b>. Each row is the real class and each column is what the model guessed. The dark diagonal boxes are the correct answers, and every box off the diagonal is a mistake.</p>
+    <p>If you look at the Shirt row, most mistakes go to T-shirt, Pullover and Coat. That makes sense, because at only 28 by 28 pixels these items look almost the same. Even a person would find some of them hard.</p>
+  </div>
+</section>
+
+<section id="rnn">
+  <h2>Part B: RNN Sequence Classification (LSTM and GRU on Sequential MNIST)</h2>
+  <div class="say">
+    <p>RNN stands for Recurrent Neural Network. RNNs are made for data that comes <b>in order</b>, like words in a sentence, speech, or stock prices over time. What makes them special is <b>memory</b>: after each step, the model keeps a note of what it has seen so far. This note is called the <b>hidden state</b>.</p>
+    <p>We used the MNIST dataset of handwritten digits from 0 to 9, again 60,000 for training and 10,000 for testing.</p>
+    <p>A picture does not come in order, so we turned it into a sequence. The model reads the picture <b>one row at a time from top to bottom</b>. Each picture is 28 rows tall, so the model takes 28 steps. For example, with a 7, it first sees a flat line at the top, then a slanted line going down. After the last row, it uses its memory to decide which digit it is.</p>
+  </div>
+  <h3>Idea</h3>
+  <p>Each 28×28 handwritten digit is treated as a <b>sequence of 28 time steps</b>, one row of
+     28 pixels per step. The recurrent network reads the rows one at a time, carries information forward in
+     its hidden state, and classifies the digit from the hidden state at the final step.</p>
+
+  <h3>Architecture</h3>
+  <table>
+    <tr><th>Layer</th><th>Details</th></tr>
+    <tr><td>Input</td><td>28 time steps × 28 features</td></tr>
+    <tr><td>Recurrent layers</td><td>2 stacked LSTM (or GRU) layers, 128 hidden units, dropout 0.2</td></tr>
+    <tr><td>Output</td><td>Linear layer on the last time step → 10 classes</td></tr>
+    <tr><td>Stabilisation</td><td>Gradient clipping (max norm 1.0) to prevent exploding gradients</td></tr>
+  </table>
+<pre>class RNNClassifier(nn.Module):
+    def forward(self, x):              # x: (batch, 1, 28, 28)
+        x = x.squeeze(1)               # (batch, 28 steps, 28 features)
+        out, _ = self.rnn(x)           # (batch, 28, 128)
+        return self.fc(out[:, -1, :])  # last time step -> class scores</pre>
+
+  <div class="say">
+    <p>The model has two recurrent layers stacked on top of each other, each with 128 memory units. At the end, a final layer turns the memory into a score for each of the 10 digits.</p>
+    <p>We also used <b>gradient clipping</b>. RNNs can sometimes take very large update steps and become unstable during training, so we limit the size of each step.</p>
+    <p>In the code, the image is reshaped into 28 steps of 28 pixels, passed through the RNN, and we take the output from the <b>last step</b> to make the prediction.</p>
+  </div>
+  <h3>LSTM vs GRU gates</h3>
+  <div class="say">
+    <p>We tried two types of RNN, the LSTM and the GRU. A basic RNN has a problem: by the time it reaches the last row, it has mostly forgotten the first rows. This is called the <b>vanishing gradient</b> problem.</p>
+    <p>LSTM and GRU fix this with <b>gates</b>, which are small switches that decide what to remember and what to forget. The LSTM has three gates, input, forget and output, plus a separate memory cell. The GRU is a simpler version with only two gates, update and reset.</p>
+  </div>
+  <table>
+    <tr><th></th><th>LSTM</th><th>GRU</th></tr>
+    <tr><td>Gates</td><td>Input, forget, output (+ separate cell state)</td><td>Update, reset (no separate cell state)</td></tr>
+    <tr><td>Purpose</td><td colspan="2">Both solve the vanishing-gradient problem of a plain RNN by controlling what is kept or forgotten</td></tr>
+  </table>
+
+  <h3>Training curves (6 epochs each)</h3>
+  <div class="say">
+    <p>We trained both models for 6 epochs with the Adam optimizer. In this graph, the solid lines are training and the dashed lines are testing. Both LSTM and GRU learn very quickly, and their lines are almost on top of each other. Both end at about <b>99%</b> accuracy.</p>
+  </div>
+  <img src="outputs/rnn_curves.png" alt="LSTM and GRU loss and accuracy curves">
+
+  <h3>LSTM per-class results (test set)</h3>
+  <table>
+    <tr><th>Digit</th><th>Precision</th><th>Recall</th><th>F1-score</th></tr>
+    <tr><td>0</td><td>0.9969</td><td>0.9939</td><td>0.9954</td></tr>
+    <tr><td>1</td><td>0.9852</td><td>0.9991</td><td>0.9921</td></tr>
+    <tr><td>2</td><td>0.9884</td><td>0.9932</td><td>0.9908</td></tr>
+    <tr><td>3</td><td>0.9940</td><td>0.9871</td><td>0.9906</td></tr>
+    <tr><td>4</td><td>0.9959</td><td>0.9847</td><td>0.9903</td></tr>
+    <tr><td>5</td><td>0.9909</td><td>0.9787</td><td>0.9848</td></tr>
+    <tr><td>6</td><td>0.9885</td><td>0.9843</td><td>0.9864</td></tr>
+    <tr><td>7</td><td>0.9844</td><td>0.9844</td><td>0.9844</td></tr>
+    <tr><td>8</td><td>0.9827</td><td>0.9887</td><td>0.9857</td></tr>
+    <tr><td>9</td><td>0.9794</td><td>0.9881</td><td>0.9837</td></tr>
+  </table>
+  <img src="outputs/rnn_confusion_matrix.png" alt="LSTM confusion matrix">
+  <div class="say">
+    <p>Here are the LSTM results for each digit. Every digit is above 97%. The hardest digit to find was <b>5</b>, with about 97.9% recall. You can see in the confusion matrix which digits it was mixed up with.</p>
+    <p>In the confusion matrix, almost everything is on the diagonal, which means very few mistakes out of 10,000 test images.</p>
+  </div>
+</section>
+
+<section id="compare">
+  <h2>Comparison</h2>
+  <div class="say">
+    <p>This table compares all three models. The most interesting result is that the <b>GRU got the same accuracy as the LSTM, 98.9%, with about 25% fewer parameters</b>, 161 thousand compared to 214 thousand. That is because the GRU has fewer gates. So for this task, the GRU is the more efficient choice.</p>
+    <p>One important point: the CNN and RNN were tested on different datasets. Clothing is harder to recognise than digits, so we should not say the RNN is better than the CNN just because its number is higher. For images, the CNN is still the natural choice, because it looks at nearby pixels together.</p>
+  </div>
+  <table>
+    <tr><th>Model</th><th>Dataset</th><th>Parameters</th><th>Epochs</th><th>Test accuracy</th><th>Test loss</th></tr>
+    <tr><td>CNN</td><td>Fashion-MNIST</td><td>421,834</td><td>8</td><td>91.77%</td><td>0.2283</td></tr>
+    <tr><td>LSTM</td><td>Sequential MNIST</td><td>214,282</td><td>6</td><td>98.85%</td><td>0.0379</td></tr>
+    <tr><td>GRU</td><td>Sequential MNIST</td><td>161,034</td><td>6</td><td>98.87%</td><td>0.0414</td></tr>
+  </table>
+  <p>The GRU reaches the same accuracy as the LSTM with about 25% fewer parameters, because it has
+     fewer gates. The CNN and RNN results are on different datasets, so their accuracies should not be
+     compared directly; Fashion-MNIST is a harder task than handwritten digits.</p>
+</section>
+
+<section id="conclusion">
+  <h2>Conclusion and Future Work</h2>
+  <div class="say">
+
+    <p>The CNN learned to recognise clothing with 92% accuracy, using filters that find local patterns in the image. The LSTM and GRU learned to recognise handwritten digits with 99% accuracy by reading the image row by row and using their memory.</p>
+    <p>In the future, we could improve the results with data augmentation, which means creating more training images by flipping or rotating them, and with deeper networks or more training. We could also test the RNN on real sequential data like text or time series, which is what RNNs are mainly used for.</p>
+  </div>
+  <ul>
+    <li>CNNs learn local spatial features (edges, textures) with shared filters, which makes them well suited to images.</li>
+    <li>RNNs (LSTM, GRU) process data step by step with a memory (hidden state), which suits sequential data such as text and time series; here an image was processed row by row.</li>
+    <li>The small train/test gap for the CNN (93.6% vs 91.8%) shows only slight overfitting, kept in check by BatchNorm and Dropout.</li>
+    <li>Possible improvements: data augmentation, deeper CNNs, more epochs, and bidirectional LSTMs.</li>
+  </ul>
+</section>
+
+</main>
+</body>
+</html>
